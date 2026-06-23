@@ -9,7 +9,7 @@
   <description>Java market analysis backend for the HousePrice portal</description>
 
   <properties>
-    <java.version>21</java.version>
+    <java.version>25</java.version>
     <spring-boot.version>3.4.4</spring-boot.version>
   </properties>
 

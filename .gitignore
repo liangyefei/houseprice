@@ -12,3 +12,4 @@ node_modules/
 portal/node_modules/
 portal/.next/
 java-backend/target/
+.vscode/

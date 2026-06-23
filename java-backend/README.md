@@ -20,3 +20,5 @@ From the `java-backend` folder:
 ```bash
 mvn spring-boot:run
 ```
+
+Requires JDK 25.
