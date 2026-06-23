@@ -84,6 +84,7 @@ class HousingPriceModelService:
     def model_info(self) -> dict[str, object]:
         if self.model is None:
             raise RuntimeError("Model is not initialized.")
+        
 
         return {
             "model_type": type(self.model).__name__,
