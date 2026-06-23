@@ -7,6 +7,7 @@ FastAPI + scikit-learn regression service for housing price prediction.
 - `POST /predict`: Single and batch predictions
 - `GET /model-info`: Model coefficients + performance metrics
 - `GET /health`: Service health check
+- `GET /validate`: Runs prediction on validation CSV (`data/Test Data For Prediction.csv`)
 - OpenAPI/Swagger UI: `/docs`
 
 ## Tech Stack
@@ -24,7 +25,8 @@ houseprice/
     model_service.py
     schemas.py
   data/
-    housing.csv        # optional dataset (if absent, synthetic data is used)
+    House Price Dataset.csv
+    Test Data For Prediction.csv
   models/
     model.joblib       # generated on first startup
     model_meta.json    # generated on first startup
@@ -34,15 +36,18 @@ houseprice/
 
 ## Dataset
 
-By default, the app looks for `data/housing.csv` with:
+By default, the app looks for `data/House Price Dataset.csv` with:
 
 - target column: `price` (configurable via `TARGET_COLUMN`)
 - numeric feature columns (all numeric columns except the target)
+- optional dropped columns (default drops `id` via `DROP_COLUMNS`)
 
 Environment variables:
 
-- `DATASET_PATH` (default: `data/housing.csv`)
+- `DATASET_PATH` (default: `data/House Price Dataset.csv`)
+- `VALIDATION_PATH` (default: `data/Test Data For Prediction.csv`)
 - `TARGET_COLUMN` (default: `price`)
+- `DROP_COLUMNS` (default: `id`)
 - `MODEL_PATH` (default: `models/model.joblib`)
 - `MODEL_META_PATH` (default: `models/model_meta.json`)
 
@@ -68,14 +73,13 @@ Single prediction:
 ```json
 {
   "features": {
-    "feature_1": 0.12,
-    "feature_2": -1.04,
-    "feature_3": 0.53,
-    "feature_4": 0.31,
-    "feature_5": -0.10,
-    "feature_6": 1.44,
-    "feature_7": -0.52,
-    "feature_8": 0.22
+    "square_footage": 1550,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "year_built": 1997,
+    "lot_size": 6800,
+    "distance_to_city_center": 4.1,
+    "school_rating": 7.6
   }
 }
 ```
@@ -86,24 +90,22 @@ Batch prediction:
 {
   "instances": [
     {
-      "feature_1": 0.12,
-      "feature_2": -1.04,
-      "feature_3": 0.53,
-      "feature_4": 0.31,
-      "feature_5": -0.10,
-      "feature_6": 1.44,
-      "feature_7": -0.52,
-      "feature_8": 0.22
+      "square_footage": 1550,
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "year_built": 1997,
+      "lot_size": 6800,
+      "distance_to_city_center": 4.1,
+      "school_rating": 7.6
     },
     {
-      "feature_1": -0.55,
-      "feature_2": 0.85,
-      "feature_3": -1.10,
-      "feature_4": 0.71,
-      "feature_5": 0.03,
-      "feature_6": 0.62,
-      "feature_7": -0.27,
-      "feature_8": 1.92
+      "square_footage": 2200,
+      "bedrooms": 4,
+      "bathrooms": 2.5,
+      "year_built": 2008,
+      "lot_size": 9600,
+      "distance_to_city_center": 7,
+      "school_rating": 8.8
     }
   ]
 }
@@ -127,7 +129,8 @@ If you want to use your real dataset at runtime:
 
 ```bash
 docker run --rm -p 8000:8000 \
-  -e DATASET_PATH=/app/data/housing.csv \
+  -e DATASET_PATH=/app/data/House\ Price\ Dataset.csv \
+  -e VALIDATION_PATH=/app/data/Test\ Data\ For\ Prediction.csv \
   -e TARGET_COLUMN=price \
   -v "${PWD}/data:/app/data" \
   houseprice-api:latest
@@ -140,3 +143,4 @@ docker run --rm -p 8000:8000 \
 3. Call `GET /health`
 4. Call `GET /model-info`
 5. Call `POST /predict` with single and batch payloads
+6. Call `GET /validate` to run validation on `Test Data For Prediction.csv`

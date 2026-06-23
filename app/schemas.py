@@ -37,6 +37,14 @@ class PredictResponse(BaseModel):
     predictions: list[float]
 
 
+class ValidateResponse(BaseModel):
+    validation_source: str
+    row_count: int
+    predictions: list[float]
+    actual: list[float] | None = None
+    metrics: dict[str, float] | None = None
+
+
 class ModelInfoResponse(BaseModel):
     model_type: str
     feature_names: list[str]

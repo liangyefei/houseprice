@@ -5,7 +5,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 
 from app.model_service import HousingPriceModelService
-from app.schemas import HealthResponse, ModelInfoResponse, PredictRequest, PredictResponse
+from app.schemas import (
+    HealthResponse,
+    ModelInfoResponse,
+    PredictRequest,
+    PredictResponse,
+    ValidateResponse,
+)
 
 
 service = HousingPriceModelService()
@@ -56,3 +62,14 @@ def predict(payload: PredictRequest) -> PredictResponse:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
     return PredictResponse(predictions=predictions)
+
+
+@app.get("/validate", response_model=ValidateResponse, tags=["model"])
+def validate() -> ValidateResponse:
+    try:
+        result = service.validate_from_csv()
+        return ValidateResponse(**result)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:  # pragma: no cover
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
