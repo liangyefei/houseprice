@@ -1,0 +1,6 @@
+server:
+  port: 8080
+
+app:
+  dataset-path: ../data/House Price Dataset.csv
+  python-api-url: http://127.0.0.1:8000

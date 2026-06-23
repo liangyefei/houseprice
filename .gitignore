@@ -7,3 +7,8 @@ models/model.joblib
 models/model_meta.json
 .env
 .DS_Store
+node_modules/
+.next/
+portal/node_modules/
+portal/.next/
+java-backend/target/
