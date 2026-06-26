@@ -21,4 +21,4 @@ From the `java-backend` folder:
 mvn spring-boot:run
 ```
 
-Requires JDK 25.
+Requires JDK 25 and Maven 3.6.3+ (tested with Maven 3.9.16).

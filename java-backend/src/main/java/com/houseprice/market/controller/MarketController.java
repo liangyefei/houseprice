@@ -28,7 +28,7 @@ public class MarketController {
       @RequestParam(name = "bedrooms", required = false) String bedrooms,
       @RequestParam(name = "minPrice", required = false, defaultValue = "0") double minPrice,
       @RequestParam(name = "maxPrice", required = false, defaultValue = "1.7976931348623157E308") double maxPrice) {
-    List<Double> bedroomValues = bedrooms == null || bedrooms.isBlank()
+    List<Double> bedroomValues = bedrooms == null || bedrooms.trim().isEmpty()
         ? List.of()
         : Arrays.stream(bedrooms.split(","))
             .map(String::trim)

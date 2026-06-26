@@ -50,7 +50,7 @@ public class MarketAnalysisService {
       List<MarketRecord> loaded = new ArrayList<>();
       String line;
       while ((line = reader.readLine()) != null) {
-        if (line.isBlank()) {
+        if (line.trim().isEmpty()) {
           continue;
         }
 
