@@ -14,6 +14,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
+from app.logging_utils import configure_console_logger
+
 
 @dataclass
 class TrainedArtifacts:
@@ -22,6 +24,9 @@ class TrainedArtifacts:
     metrics: dict[str, float]
     trained_at: str
     training_source: str
+
+
+logger = configure_console_logger("houseprice.model")
 
 
 class HousingPriceModelService:
@@ -56,18 +61,34 @@ class HousingPriceModelService:
         self.training_source: str = ""
 
     def initialize(self) -> None:
+        logger.info("Initializing model service")
         if self.model_path.exists() and self.meta_path.exists():
             self._load_artifacts()
             if self._is_loaded_model_compatible():
+                logger.info("Loaded existing model artifacts from %s", self.model_path)
                 return
 
+        logger.info("Training model from %s", self.dataset_path)
         artifacts = self._train_model()
-        self._save_artifacts(artifacts)
-        self.model = artifacts.model
-        self.feature_names = artifacts.feature_names
-        self.metrics = artifacts.metrics
-        self.trained_at = artifacts.trained_at
-        self.training_source = artifacts.training_source
+        self._apply_artifacts(artifacts)
+        logger.info(
+            "Model initialized with %s feature(s); training source=%s; metrics=%s",
+            len(self.feature_names),
+            self.training_source,
+            self.metrics,
+        )
+
+    def retrain(self) -> dict[str, object]:
+        logger.info("Retraining model from %s", self.dataset_path)
+        artifacts = self._train_model()
+        self._apply_artifacts(artifacts)
+        logger.info(
+            "Model retrained with %s feature(s); training source=%s; metrics=%s",
+            len(self.feature_names),
+            self.training_source,
+            self.metrics,
+        )
+        return self.model_info()
 
     def predict(self, records: list[dict[str, float]]) -> list[float]:
         if self.model is None:
@@ -76,6 +97,7 @@ class HousingPriceModelService:
         normalized = [self._normalize_record(record) for record in records]
         input_frame = pd.DataFrame(normalized, columns=self.feature_names)
         values = self.model.predict(input_frame)
+        logger.info("Generated %s prediction(s)", len(values))
         return [float(v) for v in values.tolist()]
 
     def is_ready(self) -> bool:
@@ -144,6 +166,7 @@ class HousingPriceModelService:
             training_frame = frame.drop(columns=self.drop_columns, errors="ignore")
             numeric_columns = training_frame.select_dtypes(include=[np.number]).columns.tolist()
             feature_names = [c for c in numeric_columns if c != self.target_column]
+            logger.info("Detected numeric feature columns: %s", feature_names)
             if not feature_names:
                 raise ValueError(
                     "No numeric feature columns found. The dataset must include numeric features."
@@ -205,6 +228,14 @@ class HousingPriceModelService:
         }
 
         self.meta_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+
+    def _apply_artifacts(self, artifacts: TrainedArtifacts) -> None:
+        self._save_artifacts(artifacts)
+        self.model = artifacts.model
+        self.feature_names = artifacts.feature_names
+        self.metrics = artifacts.metrics
+        self.trained_at = artifacts.trained_at
+        self.training_source = artifacts.training_source
 
     def _load_artifacts(self) -> None:
         self.model = joblib.load(self.model_path)
