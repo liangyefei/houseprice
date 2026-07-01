@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
-  const [value, setValue] = useState(initialValue);
+  const initialValueRef = useRef(initialValue);
+  const [value, setValue] = useState(initialValueRef.current);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -13,11 +14,11 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
         setValue(JSON.parse(stored) as T);
       }
     } catch {
-      setValue(initialValue);
+      setValue(initialValueRef.current);
     } finally {
       setReady(true);
     }
-  }, [initialValue, key]);
+  }, [key]);
 
   useEffect(() => {
     if (!ready) {

@@ -3,6 +3,7 @@ venv/
 __pycache__/
 *.py[cod]
 *.egg-info/
+*.tsbuildinfo
 models/model.joblib
 models/model_meta.json
 .env
@@ -13,3 +14,4 @@ portal/node_modules/
 portal/.next/
 java-backend/target/
 .vscode/
+.houseprice-dev-processes.json

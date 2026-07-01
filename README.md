@@ -47,6 +47,50 @@ npm run dev                            # http://localhost:3000
 
 Then open `http://localhost:3000` and navigate between the two applications.
 
+## One-click startup on Windows
+
+From the repository root you can launch all three development services with:
+
+```powershell
+.\start-dev.ps1
+```
+
+Or double-click / run:
+
+```bat
+start-dev.cmd
+```
+
+The script opens separate PowerShell windows for the Python API, Java backend, and Next.js portal. It also:
+
+- reuses `.venv\Scripts\python.exe` for FastAPI,
+- sets `PYTHON_API_URL=http://127.0.0.1:8000` and `JAVA_API_URL=http://127.0.0.1:8080` for the portal,
+- prefers Maven `3.6.3+` and JDK `25+` for the Java backend.
+
+Use a dry run to verify the detected toolchain without launching windows:
+
+```powershell
+.\start-dev.ps1 -DryRun
+```
+
+To stop the three services started by the launcher:
+
+```powershell
+.\stop-dev.ps1
+```
+
+Or:
+
+```bat
+stop-dev.cmd
+```
+
+The stop script reads the recorded PowerShell window PIDs from `.houseprice-dev-processes.json` and shuts down each service process tree. You can preview what it would stop with:
+
+```powershell
+.\stop-dev.ps1 -DryRun
+```
+
 ---
 
 # Task 1 — Housing Price Prediction API
